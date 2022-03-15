@@ -10,13 +10,15 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import com.bassem.weathernow.R
+import com.bassem.weathernow.api.models.apiHourly.Hourly
+import com.bassem.weathernow.api.models.apiWeekly.Daily
 import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.util.*
 
-class WeeklyAdapter(val weatherList: MutableList<com.bassem.weathernow.api.models.apiWeekly.Daily>, val context:Context) :
+class WeeklyAdapter(var weatherList: List<Daily>, val context: Context) :
     RecyclerView.Adapter<WeeklyAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val time = itemView.findViewById<TextView>(R.id.weeklyDate)
@@ -25,8 +27,7 @@ class WeeklyAdapter(val weatherList: MutableList<com.bassem.weathernow.api.model
         val desc = itemView.findViewById<TextView>(R.id.weeklyDesc)
 
 
-        val icon=itemView.findViewById<ImageView>(R.id.weeklyIcon)
-
+        val icon = itemView.findViewById<ImageView>(R.id.weeklyIcon)
 
 
     }
@@ -40,10 +41,12 @@ class WeeklyAdapter(val weatherList: MutableList<com.bassem.weathernow.api.model
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val weather = weatherList[position]
         val timeMill = weather.dt
-        val iconCode=weather.weather[0].icon
+        val iconCode = weather.weather[0].icon
         val iconUrl = "https://openweathermap.org/img/w/$iconCode.png"
         val cal = Calendar.getInstance()
-        val formatedTime = Instant.ofEpochSecond(timeMill.toLong()).atZone(ZoneId.systemDefault()).toLocalDate().toString()
+        val formatedTime =
+            Instant.ofEpochSecond(timeMill.toLong()).atZone(ZoneId.systemDefault()).toLocalDate()
+                .toString()
         val locale = Locale.US
         val sdf = SimpleDateFormat("yyyy-MM-dd", locale)
         val calDate: Date = sdf.parse(formatedTime)
@@ -63,9 +66,9 @@ class WeeklyAdapter(val weatherList: MutableList<com.bassem.weathernow.api.model
 
 
         holder.time.text = dayName
-        holder.tempMax.text="${weather.temp.max.toInt()} °C"
-        holder.tempMin.text="${weather.temp.min.toInt()} °C"
-        holder.desc.text=weather.weather[0].description
+        holder.tempMax.text = "${weather.temp.max.toInt()} °C"
+        holder.tempMin.text = "${weather.temp.min.toInt()} °C"
+        holder.desc.text = weather.weather[0].description
         Glide.with(context).load(iconUrl).into(holder.icon)
 
 
@@ -73,5 +76,10 @@ class WeeklyAdapter(val weatherList: MutableList<com.bassem.weathernow.api.model
 
     override fun getItemCount(): Int {
         return weatherList.size
+    }
+
+    fun addList(list: List<Daily>) {
+        weatherList = list
+        notifyDataSetChanged()
     }
 }

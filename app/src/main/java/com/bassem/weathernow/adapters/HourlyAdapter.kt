@@ -17,14 +17,13 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class HourlyAdapter(val weatherList: MutableList<Hourly>,val context:Context) :
+class HourlyAdapter(var weatherList: List<Hourly>, val context: Context) :
 
     RecyclerView.Adapter<HourlyAdapter.ViewHolder>() {
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val time = itemView.findViewById<TextView>(R.id.timeHourly)
         val temp = itemView.findViewById<TextView>(R.id.tempHourly)
-        val icon=itemView.findViewById<ImageView>(R.id.iconHourly)
-
+        val icon = itemView.findViewById<ImageView>(R.id.iconHourly)
 
 
     }
@@ -38,14 +37,15 @@ class HourlyAdapter(val weatherList: MutableList<Hourly>,val context:Context) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val weather = weatherList[position]
         val timeMill = weather.dt
-        val iconCode=weather.weather[0].icon
+        val iconCode = weather.weather[0].icon
         val iconUrl = "https://openweathermap.org/img/w/$iconCode.png"
         val locale = Locale.US
 
         val timeFormater = DateTimeFormatter.ofPattern("hh:mm a", locale)
 
 
-        val formatedTime = Instant.ofEpochSecond(timeMill.toLong()).atZone(ZoneId.systemDefault()).format(timeFormater)
+        val formatedTime = Instant.ofEpochSecond(timeMill.toLong()).atZone(ZoneId.systemDefault())
+            .format(timeFormater)
         holder.time.text = formatedTime.toString()
         holder.temp.text = "${weather.temp.toInt()} °C"
         Glide.with(context).load(iconUrl).into(holder.icon)
@@ -55,5 +55,10 @@ class HourlyAdapter(val weatherList: MutableList<Hourly>,val context:Context) :
 
     override fun getItemCount(): Int {
         return weatherList.size
+    }
+
+    fun addList(list: List<Hourly>) {
+        weatherList = list
+        notifyDataSetChanged()
     }
 }

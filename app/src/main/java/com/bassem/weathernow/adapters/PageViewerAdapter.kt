@@ -4,9 +4,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.bassem.weathernow.fragments.Hours
-import com.bassem.weathernow.fragments.Today
-import com.bassem.weathernow.fragments.Week
+import com.bassem.weathernow.fragments.hourlyWeather.HoursWeather
+import com.bassem.weathernow.fragments.currentWeather.CurrentWeather
+import com.bassem.weathernow.fragments.weekWeather.Week
 
 open class PageViewerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -22,10 +22,10 @@ open class PageViewerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecy
         return when (position) {
 
             0 -> {
-                Today()
+                CurrentWeather()
             }
             1 -> {
-                Hours()
+                HoursWeather()
             }
             else -> {
                 Week()

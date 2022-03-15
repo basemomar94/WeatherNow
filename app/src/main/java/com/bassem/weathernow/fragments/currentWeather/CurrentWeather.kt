@@ -1,7 +1,5 @@
-package com.bassem.weathernow.fragments
+package com.bassem.weathernow.fragments.currentWeather
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,29 +7,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.bassem.weathernow.R
-import com.bassem.weathernow.api.API
 import com.bassem.weathernow.api.models.apiCurrent.current_weather
 import com.bassem.weathernow.databinding.TodayFragmentBinding
 import com.bumptech.glide.Glide
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
 
-class Today : Fragment(R.layout.today_fragment) {
+class CurrentWeather : Fragment(R.layout.today_fragment) {
     var _binding: TodayFragmentBinding? = null
     val binding get() = _binding
-    lateinit var fusedlocation: FusedLocationProviderClient
-    val API_KEY = "b9eef1568d8d1cea6bb9549c7bda1bb9"
+    var viewModel: ViewModelCurrentWeather? = null
 
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,42 +34,25 @@ class Today : Fragment(R.layout.today_fragment) {
         return binding?.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        getLocation()
-        binding?.swipe?.setOnRefreshListener {
-            getLocation()
-
-
-        }
-
-    }
-
-    @SuppressLint("MissingPermission")
-    fun getLocation() {
-        fusedlocation = LocationServices.getFusedLocationProviderClient(requireContext())
-        fusedlocation.lastLocation.addOnSuccessListener {
+        viewModel = ViewModelProvider(this)[ViewModelCurrentWeather::class.java]
+        viewModel!!.getLocation(requireContext())
+        viewModel!!.currentWeather.observe(viewLifecycleOwner) {
             if (it != null) {
-                val lat = it.latitude.toString()
-                val long = it.longitude.toString()
-                println("$lat==============$long")
-                //31.0465165==============30.4793496 real
-                //31.0465165==============31.0465165 shared
-
-
-                saveLocation(lat, long)
-                getCurrentWeather(lat, long)
+                updatingUI(it)
             } else {
-                val sharedPreferences = activity?.getSharedPreferences("PREF", Context.MODE_PRIVATE)
-                val lat = sharedPreferences?.getString("lat", "30.0444")!!
-                val long = sharedPreferences.getString("long", "31.2357")!!
-                println("$lat==============$long")
-                getCurrentWeather(lat, long)
-            }
 
+            }
+        }
+        binding?.swipe?.setOnRefreshListener {
+            viewModel!!.getLocation(requireContext())
         }
 
     }
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updatingUI(currentWeather: current_weather) {
@@ -109,38 +84,12 @@ class Today : Fragment(R.layout.today_fragment) {
         val iconCode = currentWeather.weather[0].icon
         val iconUrl = "https://openweathermap.org/img/w/$iconCode.png"
         Glide.with(this).load(iconUrl).into(binding?.imgIcon!!)
+        binding?.shimmerEffect?.visibility = View.GONE
+        binding?.currentLayout?.visibility = View.VISIBLE
+        binding?.swipe?.isRefreshing = false
 
     }
 
-    fun saveLocation(lat: String, long: String) {
-        val sharedPreferences = activity?.getSharedPreferences("PREF", Context.MODE_PRIVATE)
-        val editor = sharedPreferences?.edit()
-        editor?.putString("lat", lat)
-        editor?.putString("long", long)
-        editor?.apply()
-    }
 
-    fun getCurrentWeather(lat: String, long: String) {
-        val api = API.create().currentWeather("weather", lat, long, API_KEY, "metric")
-        api.enqueue(object : retrofit2.Callback<current_weather?> {
-            @RequiresApi(Build.VERSION_CODES.O)
-            override fun onResponse(
-                call: retrofit2.Call<current_weather?>,
-                response: retrofit2.Response<current_weather?>
-            ) {
-                val currentWeather = response.body()
-                updatingUI(currentWeather!!)
-                binding?.shimmerEffect?.visibility = View.GONE
-                binding?.currentLayout?.visibility = View.VISIBLE
-                binding?.swipe?.isRefreshing = false
-
-
-            }
-
-            override fun onFailure(call: retrofit2.Call<current_weather?>, t: Throwable) {
-            }
-        })
-
-    }
 
 }
