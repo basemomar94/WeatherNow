@@ -6,6 +6,9 @@ Simple weather app helps the user to get current weather based on his location, 
 2) Clean architect using MVVM pattern. 
 3) One activity, and 3 fragments.
 4) ViewPager2.
+5) Facebook shimmer effect.
+6) Fused location.
+7) Swipe refresh layout.
 
 
 https://user-images.githubusercontent.com/63014132/159172348-ef69d4e3-2703-4bed-ba0d-839b857978c5.mp4
