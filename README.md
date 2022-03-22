@@ -10,6 +10,7 @@ Simple weather app helps the user to get current weather based on his location, 
 6) Fused location.
 7) Swipe refresh layout.
 8) Glide.
+9) View binding.
 
 
 https://user-images.githubusercontent.com/63014132/159172348-ef69d4e3-2703-4bed-ba0d-839b857978c5.mp4
